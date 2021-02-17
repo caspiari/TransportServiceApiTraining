@@ -1,13 +1,14 @@
 import java.util.Date;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 public class Launcher extends Thread {
 
     private static Launcher instance = null;
-    private HashSet<Transport> transports;
+    private TreeSet<Transport> transports;
 
     private Launcher() {
-        this.transports = new HashSet<>();
+        this.transports = new TreeSet<>();
     }
 
     public static Launcher getInstance() {
@@ -24,23 +25,33 @@ public class Launcher extends Thread {
         for (Transport transport : transports) {
             if (transport.getTime().before(now)) {
                 if (transport.isBig()) {
-                    launchBig(transport);
+                    BigTransportsLauncher bigTransport = new BigTransportsLauncher(transport);
+                    bigTransport.run();
                 } else {
-                    launch(transport);
+                    System.out.println("Ride is out!" + transport.toString());
                 }
                 transports.remove(transport);
             }
         }
     }
 
-    private void launchBig(Transport transport) {
-        for (int i = 0; i < 3; i++) {
-            System.out.println("Ride is out! (" + (i + 1) + (i == 1? "st" : "nd") + " car of 3): \n" + transport.toString());
-            try {
-                Thread.sleep(30000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public void addTransport(Transport transport) {
+        this.transports.add(transport);
+    }
+
+    public void removeTransport(String name) {
+        for (Transport transport : transports) {
+            if (transport.getName().equalsIgnoreCase(name)) {
+                transports.remove(transport);
             }
         }
+    }
+
+    public TreeSet<Transport> getTransports() {
+        return transports;
+    }
+
+    public void setTransports(TreeSet<Transport> transports) {
+        this.transports = transports;
     }
 }
